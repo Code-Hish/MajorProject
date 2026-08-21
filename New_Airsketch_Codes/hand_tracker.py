@@ -43,8 +43,8 @@ class HandTracker:
         x1 = int(hand.landmark[8].x * 1280)
         y1 = int(hand.landmark[8].y * 720)
 
-        x2 = int(hand.landmark[4].x * 1280)
-        y2 = int(hand.landmark[4].y * 720)
+        x2 = int(hand.landmark[12].x * 1280)
+        y2 = int(hand.landmark[12].y * 720)
 
         distance = math.hypot(x2 - x1, y2 - y1)
         pinch = distance < 40
