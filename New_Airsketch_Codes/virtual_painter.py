@@ -231,29 +231,6 @@ class VirtualPainter:
             x1, y1, pinch = hand_data
 
             # ======================================
-            # FINGERTIP CURSOR
-            # ======================================
-
-            preview_color = (
-                (0, 0, 0)
-                if self.current_tool == "eraser"
-                else self.current_color
-            )
-
-            preview_radius = max(
-                5,
-                self.brush_thickness // 2
-            )
-
-            cv2.circle(
-                frame,
-                (x1, y1),
-                preview_radius,
-                preview_color,
-                2
-            )
-
-            # ======================================
             # UI
             # ======================================
 
@@ -398,5 +375,31 @@ class VirtualPainter:
         # ==========================================
 
         final = self.ui.draw(final)
+
+        # ==========================================
+        # FINGERTIP CURSOR
+        # ALWAYS DRAW LAST / ON TOP
+        # ==========================================
+
+        if hand_data is not None:
+
+            preview_color = (
+                (0, 0, 0)
+                if self.current_tool == "eraser"
+                else self.current_color
+            )
+
+            preview_radius = max(
+                5,
+                self.brush_thickness // 2
+            )
+
+            cv2.circle(
+                final,
+                (x1, y1),
+                preview_radius,
+                preview_color,
+                2
+            )
 
         return final
