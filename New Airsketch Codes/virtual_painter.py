@@ -5,6 +5,7 @@ import os
 
 from hand_tracker import HandTracker
 from ui import UI
+from evaluation import GestureEvaluator
 
 
 class VirtualPainter:
@@ -113,6 +114,20 @@ class VirtualPainter:
         # ==========================================
 
         self.ui = UI(self)
+
+        # ==========================================
+        # EVALUATION
+        # ==========================================
+
+        self.evaluation_mode = False
+        self.evaluator = GestureEvaluator(
+            csv_path="evaluation_results.csv",
+            sample_every=3
+        )
+
+        self.last_prediction = 0
+        self.last_distance = None
+        self.last_hand_detected = False
 
     def draw_brush(self, canvas, x, y):
 
@@ -226,9 +241,24 @@ class VirtualPainter:
 
         hand_data = self.hand_tracker.process(frame)
 
+        self.last_hand_detected = hand_data is not None
+        self.last_prediction = 0
+        self.last_distance = None
+
         if hand_data is not None:
 
-            x1, y1, pinch = hand_data
+            x1, y1, pinch, distance = hand_data
+
+            self.last_prediction = int(pinch)
+            self.last_distance = distance
+
+            # Record a labeled sample when evaluation mode is active.
+            if self.evaluation_mode:
+                self.evaluator.add_sample(
+                    predicted=pinch,
+                    distance_px=distance,
+                    hand_detected=True
+                )
 
             # ======================================
             # UI
