@@ -47,7 +47,7 @@ class HandTracker:
         y2 = int(hand.landmark[12].y * 720)
 
         distance = math.hypot(x2 - x1, y2 - y1)
-        pinch = distance < 50
+        pinch = distance < 70
 
         x1, y1 = self.smooth_points(x1, y1)
 
