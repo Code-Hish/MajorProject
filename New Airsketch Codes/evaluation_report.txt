@@ -4,13 +4,13 @@ AirSketch Pinch Detection Evaluation
 Confusion Matrix
                  Predicted
               No Pinch  Pinch
-Actual No Pinch      366      0
-       Pinch          95    354
+Actual No Pinch      137      0
+       Pinch           8    148
 
-Samples   : 815
-Accuracy  : 0.8834 (88.34%)
+Samples   : 293
+Accuracy  : 0.9727 (97.27%)
 Precision : 1.0000 (100.00%)
-Recall    : 0.7884 (78.84%)
-F1-score  : 0.8817 (88.17%)
+Recall    : 0.9487 (94.87%)
+F1-score  : 0.9737 (97.37%)
 FPR       : 0.0000 (0.00%)
-FNR       : 0.2116 (21.16%)
+FNR       : 0.0513 (5.13%)
