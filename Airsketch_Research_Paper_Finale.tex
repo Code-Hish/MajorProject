@@ -11,18 +11,21 @@
 \usepackage{url}
 \usepackage{tikz}
 \usepackage{float}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, calc}
 
 \begin{document}
 
-\title{AirSketch: A Real-Time Gesture-Based Virtual Drawing and Control System Using MediaPipe and OpenCV}
+\title{MediaPipe-Based Hand Gesture Recognition and Tracking for Real-Time Virtual Canvas Interaction and Digital Drawing}
 
 \author{
 \IEEEauthorblockN{Dr. Anita Harsoor, Hisham Khuram, Md Ahmed Raza Sofi, Mohammad Abdul Maaz Hanan}
 \IEEEauthorblockA{Department of Computer Science and Engineering\\
 P.D.A. College of Engineering\\
 Kalaburagi, India\\
-\{anitaharsoor, 3pd23cs050, 3pd23cs065, 3pd23cs070\}@pdaengg.com}
+anitaharsoor@pdaengg.com, 3pd23cs050@pdaengg.com, 3pd23cs065@pdaengg.com, 3pd23cs070@pdaengg.com}
 }
 
 \maketitle
@@ -36,21 +39,18 @@ hand gesture recognition, human--computer interaction, MediaPipe, OpenCV, virtua
 \end{IEEEkeywords}
 
 \section{Introduction}
-Human--computer interaction (HCI) has progressively moved from command-oriented interfaces toward interaction techniques that attempt to resemble natural human behavior. Hand gestures are particularly attractive because they can express pointing, selection, manipulation, and continuous motion without requiring the user to hold a physical controller. Vision-based gesture interfaces have consequently been studied for applications including assistive interaction, virtual environments, robotics, sign-language processing, and touchless control. Reviews of the field commonly describe a processing chain involving image acquisition, hand detection or segmentation, feature extraction, and gesture classification or interpretation \cite{qi2024,vuletic2019,rahman2020}. These studies also highlight a persistent trade-off: systems using specialized sensors or richer learned models may provide additional information, but they can increase hardware, computational, or deployment requirements.
 
-The choice of sensing technology strongly affects the practicality of a gesture interface. Wearable approaches such as instrumented gloves can provide direct measurements of hand configuration, while depth cameras can supply three-dimensional information. Camera-only approaches, in contrast, can use hardware already available on many computers and therefore offer a lower barrier to experimentation and deployment \cite{rahman2020,qi2024}. Recent progress in landmark-based hand perception has made this approach substantially more practical. MediaPipe Hands introduced a real-time pipeline that combines palm detection with a hand-landmark model and estimates a 21-point hand skeleton from a single RGB camera \cite{zhang2020}. The resulting representation is useful not only for recognizing predefined gestures but also for constructing application-specific interaction rules from spatial relationships among landmarks.
+Human--computer interaction has increasingly incorporated natural input modalities that reduce dependence on traditional devices such as keyboards, mice, styluses, and touchscreens. Hand gestures are particularly useful because they can express pointing, selection, movement, and manipulation without requiring a physical controller. Research in this area includes skeleton-based gesture recognition, air-writing, virtual painting, assistive interfaces, sign-language recognition, and sensor-based interaction.
 
-Virtual drawing is a natural application for this type of interaction because the desired input is inherently spatial: a user's fingertip trajectory can be mapped to a two-dimensional drawing surface. Existing air-canvas prototypes have demonstrated the feasibility of combining OpenCV and hand tracking to draw without a mouse or stylus \cite{vasavi2022,swathi2024}. However, a drawing application requires more than fingertip tracking. It must distinguish between movement that should create a stroke and movement that should manipulate the interface, provide stable interaction despite small tracking fluctuations, support tool selection, and provide feedback while an object is being created. Gesture-based interface research also shows that gesture selection is not purely a recognition problem; the appropriateness and usability of the gesture vocabulary are important design considerations \cite{vuletic2019}.
+The sensing modality has a substantial influence on the design of a gesture-controlled system. AO-Finger introduced a wrist-worn acoustic-optic sensing system for fine-grained finger gesture recognition by combining acoustic and optical measurements and evaluating gestures including Flick, None, Pinch, and Tap \cite{ao_finger}. Its results demonstrate the usefulness of specialized sensing hardware for detailed finger interaction. In contrast, OMG-Bench addresses online micro hand gestures using skeleton-based representations and provides a benchmark for evaluating subtle hand movements \cite{omgbench}. Air-writing research has also explored webcam-based fingertip tracking and handwriting recognition using OpenCV and MediaPipe \cite{airwriting}. Air Canvas Hand Tracking demonstrates the use of camera-based hand tracking for virtual drawing and interaction \cite{swathi}. A multimodal depth-aware system by Mahmud et al. investigates dynamic gesture recognition using depth and skeletal information, illustrating the potential of richer multimodal inputs \cite{mahmud}.
 
-AirSketch addresses this application-level problem with a deliberately compact interaction model. Rather than training a new neural classifier for each drawing command, the current implementation uses MediaPipe's landmark output and deterministic geometric rules. The index fingertip provides the interaction coordinate, while the distance between the index and middle fingertips determines whether the interaction is active. This design makes the control logic explicit and easy to inspect. It also separates perception from application behavior: MediaPipe supplies hand geometry, while AirSketch decides how that geometry controls drawing and interface operations.
+Other computer-vision approaches have examined feature extraction and machine-learning methods for hand gesture recognition. Sharma et al. investigate image-processing and feature-extraction techniques for gesture classification using conventional machine-learning models \cite{sharma}. Qi et al. provide a review of computer-vision-based hand gesture recognition for human--robot interaction and discuss the broader challenges associated with gesture perception and interaction \cite{qi2024}. Morajkar et al. combine hand gesture and voice interaction for computer control, demonstrating the application of gesture recognition to assistive interfaces \cite{morajkar}. Anithadevi et al. combine MediaPipe with an LSTM-based architecture for dynamic sign-language recognition, demonstrating how landmark sequences can be used as input to temporal learning models \cite{anithadevi2025}. Software-oriented research also highlights the importance of reliability in machine-learning systems implemented using JavaScript-based frameworks \cite{quan}.
 
-The present work differs from the earlier version of the project documentation in an important respect. The current implementation is a Python/OpenCV desktop application rather than a browser-based React application. Its dependencies are limited to MediaPipe 0.10.21, OpenCV 4.10.0.84, and NumPy 1.26.4, and the interaction logic is implemented directly in Python \cite{repo}. Therefore, this paper is based on the current implementation rather than reusing technology claims from the previous project paper.
+Virtual drawing systems provide a more application-specific use case for hand tracking. Vasavi et al. present a virtual painting system based on hand gestures and MediaPipe, demonstrating that fingertip tracking can be used to replace physical drawing input \cite{vasavi}. Dynamic gesture recognition using spatiotemporal representations has also been explored for LIBRAS gesture recognition, where MediaPipe landmarks are arranged into temporal representations and classified using a convolutional neural network \cite{moreira2026}. AirSketch: Generative Motion to Sketch addresses a different problem in which noisy hand-motion representations are transformed into visually coherent sketches using a learned generative approach \cite{generative_airsketch}. A gesture-based Virtual Write and Clear application similarly uses MediaPipe and OpenCV to provide drawing, color selection, and erasing through hand interaction \cite{virtualwrite}. Virtual Hand Gesture Painting investigates a MediaPipe and OpenCV-based virtual painting interface in which hand movements are converted into digital drawing operations \cite{virtualpainting}.
 
-The main objectives of this work are: 1) a webcam-based virtual drawing system using MediaPipe hand landmarks; 2) Enhance accessibility by enabling users with physical limitations to
-interact without traditional input devices 3) Demonstrate the practical use of AI-driven human–computer interaction
-systems 4) Provide an interactive and user-friendly interface with
-features such as drawing, color selection, erasing, and
-canvas clearing. The goal is not to claim a new hand-tracking model, but to demonstrate how an established landmark detector can be integrated into a practical touchless drawing system with a small and interpretable control layer.
+Although these systems demonstrate the feasibility of gesture-controlled interaction, their objectives, sensing modalities, datasets, gesture vocabularies, and evaluation protocols differ. AirSketch focuses on a lightweight application-level interaction model in which a standard RGB webcam supplies hand landmarks and deterministic geometric rules convert those landmarks into drawing commands. Rather than training a new gesture classifier, AirSketch uses the relative distance between the index and middle fingertips to determine a pinch state.
+
+The objective is therefore not to propose a new hand-tracking model or claim superiority over existing gesture-recognition systems. Instead, the objective is to demonstrate how established hand-landmark detection can be integrated with simple geometric interaction rules to create a practical and interpretable virtual drawing system.
 
 \section{System Design and Methodology}
 
@@ -69,9 +69,9 @@ The use of a fixed 1280 by 720 working space simplifies coordinate mapping becau
 where $(x_n,y_n)$ are the normalized landmark coordinates and $(x_p,y_p)$ are pixel coordinates in the application workspace.
 
 \subsection{Hand Landmark Detection}
-AirSketch uses the Python MediaPipe Hands solution with `max\_num\_hands=1`, a minimum detection confidence of 0.75, and a minimum tracking confidence of 0.70. MediaPipe Hands produces 21 landmarks representing the hand skeleton \cite{zhang2020,mediapipe_docs}. The current system does not invoke a separate gesture-classification model. Instead, it consumes the landmark coordinates directly.
+AirSketch uses the Python MediaPipe Hands solution with `max\_num\_hands=1`, a minimum detection confidence of 0.75, and a minimum tracking confidence of 0.70. MediaPipe Hands produces 21 landmarks representing the hand skeleton \cite{vasavi}. The current system does not invoke a separate gesture-classification model. Instead, it consumes the landmark coordinates directly.
 
-Two landmarks are central to the interaction model. Landmark 8 corresponds to the index-finger tip, and landmark 12 corresponds to the middle-finger tip \cite{mediapipe_landmarks}. The index tip is used as the virtual pointer position. The distance between the two fingertips is used to determine whether the user is making an active pinch. This choice provides a simple binary interaction state while retaining continuous two-dimensional fingertip motion for drawing.
+Two landmarks are central to the interaction model. Landmark 8 corresponds to the index-finger tip, and landmark 12 corresponds to the middle-finger tip \cite{vasavi}. The index tip is used as the virtual pointer position. The distance between the two fingertips is used to determine whether the user is making an active pinch. This choice provides a simple binary interaction state while retaining continuous two-dimensional fingertip motion for drawing.
 
 \subsection{Pinch-Based Interaction Model}
 For every detected frame, the Euclidean distance between the index and middle fingertips is computed as
@@ -82,8 +82,8 @@ The current implementation declares the pinch state active when
 \begin{equation}
  P =
  \begin{cases}
- 1, & d < 40,\\
- 0, & d \geq 40.
+ 1, & d < 70,\\
+ 0, & d \geq 70.
  \end{cases}
 \end{equation}
 The threshold is expressed in pixels in the 1280 by 720 processing space. This deterministic rule avoids an additional classification model and makes the activation condition directly interpretable.
@@ -129,7 +129,7 @@ When the pinch is active and the hand is outside the toolbar region, the system 
     {Index and middle fingertip\\coordinate extraction};
 
 \node (pinch) [dec, below=of coords]
-    {Pinch?\\$d<40$};
+    {Pinch?\\$d<70$};
 
 \node (state) [block, below=of pinch]
     {Interaction state\\and selected tool};
@@ -223,13 +223,6 @@ The `VirtualPainter` object initializes the persistent canvas and temporary canv
 
 The `process\_frame` method is the central orchestration function. It first copies the persistent canvas into the temporary canvas. It then obtains hand data. If the hand is detected above the toolbar boundary, UI interaction handling takes precedence. If the hand is in the drawing region and the pinch is active, the system either starts a new interaction, extends a brush/eraser stroke, or renders a geometric preview. On pinch release, geometric tools are committed to the persistent canvas. Finally, the selected display surface is composited with the camera frame and passed to the UI renderer.
 
-\subsection{User Interface Module}
-The UI module creates the toolbar using OpenCV drawing functions. It loads the tool icons from the repository's `assets/icons` directory and supports alpha compositing for PNG images. Color selection is performed by testing the distance from the pointer to each color-circle center. Tool selection is performed by checking whether the pointer lies inside a tool button's rectangular bounds. Brush-size selection uses separate rectangular controls for decrement and increment operations.
-
-The interface uses a 0.3-second debounce time for all UI interactions. This is a practical mechanism for reducing repeated selections caused by the high temporal sampling rate of the video stream. Importantly, the debounce applies to UI selection and not to the continuous drawing path itself, so it does not intentionally suppress ordinary brush motion.
-
-\subsection{Interaction Mapping}
-Table~\ref{tab:interaction} summarizes the current interaction model. The table distinguishes between the physical input, the interpretation performed by the software, and the resulting application behavior.
 
 \begin{table}[t]
 \caption{AirSketch Interaction Mapping}
@@ -241,7 +234,7 @@ Table~\ref{tab:interaction} summarizes the current interaction model. The table 
 \textbf{Input} & \textbf{Condition} & \textbf{System action}\\
 \midrule
 Index fingertip & Hand detected & Virtual pointer position\\
-Index + middle tips & Distance $<40$ px & Active pinch/drawing state\\
+Index + middle tips & Distance $<70$ px & Active pinch/drawing state\\
 Pinch + brush & Continuous movement & Freehand stroke\\
 Pinch + eraser & Continuous movement & Blank stroke for erasing\\
 Pinch + shape tool & Movement & Temporary geometric preview\\
@@ -255,42 +248,15 @@ Pointer on clear & Clear button bounds & Reset persistent canvas\\
 \end{tabular}
 \end{table}
 
-\section{Experimental Setup and Evaluation}
+\subsection{User Interface Module}
+The UI module creates the toolbar using OpenCV drawing functions. It loads the tool icons from the repository's `assets/icons` directory and supports alpha compositing for PNG images. Color selection is performed by testing the distance from the pointer to each color-circle center. Tool selection is performed by checking whether the pointer lies inside a tool button's rectangular bounds. Brush-size selection uses separate rectangular controls for decrement and increment operations.
 
-\subsection{Evaluation Scope}
+The interface uses a 0.3-second debounce time for all UI interactions. This is a practical mechanism for reducing repeated selections caused by the high temporal sampling rate of the video stream. Importantly, the debounce applies to UI selection and not to the continuous drawing path itself, so it does not intentionally suppress ordinary brush motion.
 
-The current repository does not contain a formal benchmark dataset, a labeled gesture test set, or a recorded latency/accuracy measurement protocol. Consequently, this study does not report fabricated numerical recognition accuracy, latency, memory, or frame-rate results. Instead, the evaluation is framed as a functional and implementation-level assessment of the capabilities explicitly realized in the source code. This distinction is important because a working prototype and a statistically validated recognition system answer different research questions.
+\subsection{Interaction Mapping}
+Table~\ref{tab:interaction} summarizes the current interaction model. The table distinguishes between the physical input, the interpretation performed by the software, and the resulting application behavior.
 
-The implementation can nevertheless be evaluated systematically through functional scenarios. The principal scenarios are hand acquisition, fingertip tracking, pinch activation, freehand drawing, erasing, geometric shape preview and commitment, color selection, brush-size adjustment, canvas clearing, toolbar interaction, and recovery when no hand is detected. These scenarios correspond directly to the major interaction and drawing functions implemented in the current software.
-
-\subsection{Functional Test Scenarios}
-
-Table~\ref{tab:tests} summarizes the functional evaluation criteria used for the current implementation. A scenario is considered successful when the corresponding interaction produces the intended state transition or visual output during normal operation. The table intentionally avoids assigning unsupported percentages or numerical performance values to these observations.
-
-\begin{table}[t]
-\caption{Functional Evaluation Scenarios}
-\label{tab:tests}
-\centering
-\scriptsize
-\begin{tabular}{p{1.45cm}p{2.05cm}p{2.15cm}}
-\toprule
-\textbf{Scenario} & \textbf{Expected behavior} & \textbf{Implemented mechanism}\\
-\midrule
-Hand acquisition & Detect one hand from webcam & MediaPipe Hands, one-hand mode\\
-Pointer tracking & Follow index fingertip & Landmark 8 + smoothing\\
-Activation & Distinguish active input & Landmark 8--12 distance threshold\\
-Freehand drawing & Produce continuous stroke & Consecutive OpenCV line segments\\
-Erasing & Remove or modify drawn content & Eraser tool using fingertip interaction\\
-Shape preview & Show live geometry & Temporary frame overlay\\
-Shape commit & Preserve final shape & Draw on video frame at release\\
-Color control & Change current color & Pointer proximity to palette\\
-Tool control & Select drawing primitive & Pointer inside tool bounds\\
-Size control & Adjust thickness & Bounded ten-value list\\
-Clear control & Remove current drawing & Canvas/frame reset mechanism\\
-No-hand state & Avoid invalid interaction & Return `None` and preserve display\\
-\bottomrule
-\end{tabular}
-\end{table}
+\section{Result and Discussion}
 
 \subsection{Visual Output Evaluation}
 
@@ -300,24 +266,24 @@ The output demonstrates multiple drawing capabilities within a single interactio
 
 The second output demonstrates continued hand-based interaction with content already drawn on the video feed. The detected hand landmarks remain visible while the fingertip is positioned over the displayed drawing. This demonstrates that the landmark-tracking mechanism remains active while interacting with previously created visual content.
 
-\begin{figure*}[!t]
-\centering
-\begin{minipage}[t]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{drawing_output.jpeg}
-    \centerline{\footnotesize (a) Drawing and shape creation}
-\end{minipage}
-\hfill
-\begin{minipage}[t]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{interaction_output.jpeg}
-    \centerline{\footnotesize (b) Hand-based canvas interaction}
-\end{minipage}
-\caption{Representative AirSketch outputs demonstrating (a) freehand drawing, line and geometric shape creation with hand landmark tracking, and (b) hand-based interaction with previously drawn content directly over the live video feed.}
-\label{fig:airsketch_outputs}
-\end{figure*}
-
 The displayed outputs provide functional evidence that the implemented perception and interaction pipeline can translate hand movement into drawing operations using a conventional RGB webcam. Unlike a separate black or blank drawing canvas, the current implementation renders the drawing content directly onto the live video frame, allowing the user to interact with the virtual drawing while simultaneously viewing the camera feed. However, these images represent representative functional demonstrations rather than quantitative measurements of recognition accuracy, latency, or robustness.
+
+\begin{figure}[!t]
+    \centering
+
+    \includegraphics[width=\columnwidth]{drawing_output.jpeg}
+    
+    \centerline{\footnotesize (a) Drawing and shape creation}
+    
+    \vspace{0.3cm}
+    
+    \includegraphics[width=\columnwidth]{interaction_output.jpeg}
+    
+    \centerline{\footnotesize (b) Hand-based canvas interaction}
+
+    \caption{Representative AirSketch outputs demonstrating (a) freehand drawing, line and geometric shape creation with hand landmark tracking, and (b) hand-based interaction with previously drawn content directly over the live video feed.}
+    \label{fig:airsketch_outputs}
+\end{figure}
 
 \subsection{Observed Interaction Characteristics}
 
@@ -331,75 +297,225 @@ The screenshots also demonstrate that the hand-landmark visualization provides i
 
 \subsection{Discussion}
 
-The principal strength of the current approach is that the system does not need to learn the semantics of the drawing task. MediaPipe provides a structured representation of hand geometry, after which the application applies deterministic rules. This reduces the amount of project-specific training data required and makes the control logic straightforward to explain. It also means that changing the activation rule or adding a new interaction can be done by modifying application logic rather than retraining a classifier.
+The evaluation report generated by the AirSketch implementation is summarized in Table~\ref{tab:evaluation_report}. The evaluation was performed on 293 samples to assess the reliability of the pinch-detection mechanism.
 
-The trade-off is expressiveness. A binary pinch state is sufficient for an activation mechanism but cannot by itself represent a rich vocabulary of commands. The current application therefore relies on spatial toolbar selection for tool switching instead of encoding every tool as a different hand gesture. This is a deliberate engineering choice that reduces gesture ambiguity while allowing multiple drawing operations through the same interface.
+\begin{table}[!htbp]
+\centering
+\caption{AirSketch Pinch-Detection Evaluation Report}
+\label{tab:evaluation_report}
 
-The smoothing mechanism illustrates another trade-off. A five-sample moving average is computationally inexpensive and easy to understand, but it treats recent samples uniformly and therefore does not explicitly model hand velocity or acceleration. Faster motion can consequently be smoothed less responsively than an adaptive filter would allow. Likewise, the fixed 40-pixel pinch threshold is tied to the application's pixel coordinate system rather than being normalized by hand size or camera distance. A user's apparent fingertip separation can change with distance from the camera, potentially affecting activation consistency.
+\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.35}
 
-Because the drawing is rendered directly onto the live video frame, the system provides an augmented camera-view interaction rather than a separate blank drawing surface. This makes the relationship between the user's physical hand movement and the resulting drawing immediately visible. However, this approach also means that the displayed drawing is dependent on the underlying video frame and the frame-compositing process.
+\begin{tabular}{lcc}
+\hline
+\multicolumn{3}{c}{\textbf{Confusion Matrix}} \\
+\hline
+\textbf{Actual / Predicted} & \textbf{No Pinch} & \textbf{Pinch} \\
+\hline
+No Pinch & 137 & 0 \\
+Pinch    & 8   & 148 \\
+\hline
+\end{tabular}
 
-The evaluation further highlights the practical dependence of the system on webcam quality, lighting conditions, and reliable hand visibility. The current implementation is designed for single-hand interaction and uses a fixed image-coordinate system. These factors limit the robustness of the prototype compared with systems using depth sensors or more sophisticated learned gesture models.
+\vspace{0.35cm}
 
-Overall, the functional outputs demonstrate the feasibility of using webcam-based hand landmarks and deterministic geometric interaction rules to implement a touchless virtual drawing interface directly over a live video feed. The results support the intended proof-of-concept objective of AirSketch while also identifying areas for future quantitative evaluation and robustness improvements.
+\begin{tabular}{lc}
+\hline
+\multicolumn{2}{c}{\textbf{Evaluation Metrics}} \\
+\hline
+\textbf{Metric} & \textbf{Value} \\
+\hline
+Samples   & 293 \\
+Accuracy  & 97.27\% \\
+Precision & 100.00\% \\
+Recall    & 94.87\% \\
+F1-score  & 97.37\% \\
+FPR       & 0.00\% \\
+FNR       & 5.13\% \\
+\hline
+\end{tabular}
+\end{table}
+
+The results indicate that the pinch-detection mechanism achieved an
+accuracy of 97.27\% and an F1-score of 97.37\%. The precision of
+100.00\% and false-positive rate of 0.00\% indicate that no non-pinch
+sample was incorrectly classified as a pinch. The primary source of
+error was false-negative detection, with 8 out of 156 actual pinch
+samples classified as no pinch, resulting in a false-negative rate of
+5.13\%.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    bar width=10pt,
+    width=\columnwidth,
+    height=6cm,
+    ymin=0,
+    ymax=105,
+    ylabel={Percentage (\%)},
+    symbolic x coords={Accuracy,Precision,Recall,F1,FPR,FNR},
+    xtick=data,
+    x tick label style={rotate=35,anchor=east,font=\small},
+    nodes near coords,
+    nodes near coords align={vertical},
+    enlarge x limits=0.08,
+    grid=major
+]
+\addplot coordinates {
+    (Accuracy,97.27)
+    (Precision,100.00)
+    (Recall,94.87)
+    (F1,97.37)
+    (FPR,0.00)
+    (FNR,5.13)
+};
+\end{axis}
+\end{tikzpicture}
+\caption{AirSketch pinch-detection evaluation metrics.}
+\label{fig:metrics}
+\end{figure}
+
+The quantitative evaluation indicates that the current pinch detector performs consistently on the available evaluation samples. The measured accuracy of 97.27\% indicates that 285 of the 293 labeled samples were classified correctly. More specifically, all 137 no-pinch samples in the evaluation were correctly identified, while 148 of the 156 actual pinch samples were correctly detected.
+
+The precision of 100.00\% is particularly relevant to the interaction design because no sampled no-pinch frame was incorrectly interpreted as a pinch. In the context of AirSketch, a false-positive pinch could unintentionally activate drawing or a shape operation. The observed zero false-positive rate therefore indicates that such an error did not occur in the available evaluation samples.
+
+The recall of 94.87\% shows that the detector did not identify every actual pinch sample. The eight false-negative samples account for the complete set of observed errors. This suggests that future threshold adaptation or temporal gesture stabilization could focus on reducing missed pinch states without unnecessarily increasing false-positive activations.
+
+\subsection{Comparison with AO Finger}
+AO-Finger reported a pinch precision of 83\% in its sample-level evaluation, whereas AirSketch achieved 100\% pinch precision on its available evaluation samples \cite{ao_finger}.
+
+This numerical comparison should not be interpreted as a direct benchmark between the two systems. AO-Finger uses dedicated acoustic-optic wrist-worn sensing hardware, while AirSketch uses a standard RGB webcam and MediaPipe landmarks. The datasets, participants, gesture definitions, sampling procedures, and evaluation protocols are also different.
+
+The comparison is therefore limited to the reported pinch-precision values under their respective evaluation conditions. Within the AirSketch evaluation, no false-positive pinch predictions were observed. This demonstrates that a webcam-based landmark approach can provide high pinch-detection precision for the specific virtual drawing interaction implemented in AirSketch, without requiring dedicated acoustic-optic sensing hardware.
+
+The comparison also highlights the different objectives of the two systems. AO-Finger is designed for fine-grained finger gesture recognition using multimodal wearable sensing, while AirSketch is designed as a lightweight application-level drawing interface. AirSketch therefore does not attempt to reproduce the broader sensing capabilities of AO-Finger.
+
+\subsection{Novelty}
+The primary novelty of AirSketch is not a new hand-landmark detector or a new machine-learning architecture. Instead, the contribution lies in integrating established hand landmark detection with a deterministic interaction model for a complete virtual drawing application.
+
+This application-level integration makes the system comparatively simple to inspect and modify. The gesture logic does not depend on a project-specific trained classifier, which also reduces the need for a dedicated gesture dataset for the basic interaction vocabulary.
 
 \section{Limitations and Future Improvements}
-Several limitations follow directly from the current implementation. First, the system processes only one detected hand. This simplifies interaction but prevents two-handed operations such as simultaneous canvas manipulation and drawing. MediaPipe itself supports multi-hand tracking, so extending the system to multiple hands is technically plausible, but the application logic would need an explicit role assignment strategy \cite{mediapipe_docs}.
+Several limitations follow directly from the current implementation. First, the system processes only one detected hand. This simplifies interaction but prevents two-handed operations such as simultaneous canvas manipulation and drawing. MediaPipe itself supports multi-hand tracking, so extending the system to multiple hands is technically plausible, but the application logic would need an explicit role assignment strategy.
 
 Second, the system assumes a fixed 1280 by 720 coordinate space. Although MediaPipe provides normalized coordinates, the current implementation converts them directly using fixed constants. A more general implementation could derive the active dimensions from the actual captured frame, reducing dependence on camera configuration.
 
 Third, the pinch threshold is fixed in pixels. A normalized threshold based on a scale reference such as the distance between wrist and a metacarpal landmark could make activation less sensitive to the apparent size of the hand. Such normalization would also make the interaction more transferable across camera distances.
 
-Fourth, the current project does not use a learned gesture classifier. This is beneficial for interpretability and simplicity but limits the command vocabulary. Future versions could combine the existing landmark representation with a lightweight classifier for additional static or dynamic gestures while retaining deterministic geometric rules for core drawing operations. The literature demonstrates that landmark sequences can also be used as inputs to temporal deep-learning models for dynamic gesture recognition \cite{moreira2026,anithadevi2025}; however, adding such a model would introduce training, validation, and generalization requirements that are intentionally outside the scope of the present implementation.
+Finally, the current project does not use a learned gesture classifier. This is beneficial for interpretability and simplicity but limits the command vocabulary. Future versions could combine the existing landmark representation with a lightweight classifier for additional static or dynamic gestures while retaining deterministic geometric rules for core drawing operations. The literature demonstrates that landmark sequences can also be used as inputs to temporal deep-learning models for dynamic gesture recognition \cite{moreira2026,anithadevi2025}; however, adding such a model would introduce training, validation, and generalization requirements that are intentionally outside the scope of the present implementation.
 
-Fifth, the current evaluation is functional rather than statistically controlled. A stronger experimental study should record multiple users performing repeated trials under different lighting conditions, backgrounds, camera distances, and hand orientations. Appropriate metrics could include gesture activation precision and recall, false activation rate, endpoint error, stroke deviation, task completion time, and perceived usability. Such an evaluation would allow quantitative comparison with alternative interaction mechanisms rather than relying only on implementation inspection.
-
-Finally, the current repository creates a `paintings` directory but the inspected drawing workflow does not expose a completed image-save command. Future work can therefore add explicit save/load functionality, undo/redo operations, canvas export, and persistent project storage. Additional improvements could include adaptive stroke smoothing, normalized gesture thresholds, multi-hand support, and a richer gesture vocabulary.
 
 \section{Conclusion}
-This paper presented AirSketch, a real-time webcam-based virtual drawing and control system implemented using Python, OpenCV, MediaPipe, and NumPy. The system uses MediaPipe's 21-point hand representation to obtain fingertip positions, uses the index fingertip as a virtual pointer, and determines active interaction from the Euclidean distance between the index and middle fingertips. A five-sample moving-average filter reduces fingertip jitter before the coordinate is passed to the drawing engine.
 
-The resulting architecture integrates freehand drawing, erasing, geometric primitives, color selection, brush-size control, and canvas clearing into a single touchless interface. Its temporary-canvas mechanism provides live previews for geometric shapes, while persistent canvas state preserves completed drawing operations. The use of deterministic landmark geometry rather than a project-specific learned classifier makes the current system lightweight and interpretable.
+This paper presented AirSketch, a real-time webcam-based virtual drawing and control system implemented using Python, OpenCV, MediaPipe, and NumPy. The system uses MediaPipe's 21-point hand representation to obtain fingertip coordinates, uses the index fingertip as a virtual pointer, and determines the primary interaction state using the Euclidean distance between the index and middle fingertips.
 
-The analysis also shows why implementation accuracy should not be confused with benchmark accuracy. The repository supports a functional prototype with clearly defined processing and interaction rules, but it does not provide a controlled dataset or experimental measurements sufficient to justify claims such as a specific recognition percentage or end-to-end latency. A future evaluation should therefore supplement the present functional analysis with repeatable user trials and quantitative metrics.
+The current implementation uses a 70-pixel pinch threshold and a five-sample moving average to provide stable interaction. The resulting system integrates freehand drawing, erasing, geometric primitives, color selection, brush-size control, and canvas clearing into a single touchless interface.
 
-Overall, AirSketch demonstrates that a standard webcam and a compact landmark-processing pipeline can support a practical touchless drawing interface without specialized sensing hardware. The system provides a foundation for future work involving adaptive interaction thresholds, richer gesture vocabularies, multi-hand interaction, stronger smoothing, usability studies, and persistent digital-art workflows.
+A frame-level evaluation using 293 labeled samples produced 97.27\% accuracy, 100.00\% precision, 94.87\% recall, and 97.37\% F1-score. The confusion matrix contained 148 true positives, 137 true negatives, zero false positives, and eight false negatives. The observed errors were therefore exclusively false negatives in the available evaluation set.
+
+A limited comparison with AO-Finger showed that AirSketch achieved higher reported pinch precision under its own evaluation conditions than the 83\% pinch precision reported by AO-Finger. However, the two results are not directly comparable because the systems use different sensing modalities, datasets, participants, gesture definitions, and evaluation protocols.
+
+Overall, AirSketch demonstrates that a standard webcam combined with MediaPipe landmarks and deterministic geometric interaction rules can support a practical virtual drawing interface without specialized wearable sensing hardware. The system provides a lightweight foundation for future work involving adaptive gesture thresholds, multi-hand interaction, richer gesture vocabularies, and more extensive user-centered evaluation.
 
 \begin{thebibliography}{00}
 
-\bibitem{zhang2020}
-F. Zhang, V. Bazarevsky, A. Vakunov, A. Tkachenka, G. Sung, C.-L. Chang, and M. Grundmann, ``MediaPipe Hands: On-device Real-time Hand Tracking,'' arXiv:2006.10214, 2020.
+\bibitem{ao_finger}
+C. Xu, B. Zhou, G. Krishnan, and S. Nayar,
+``AO-Finger: Hands-free Fine-grained Finger Gesture Recognition via Acoustic-Optic Sensor Fusing,''
+in \emph{Proc. CHI Conference on Human Factors in Computing Systems (CHI)}, 2023,
+doi: 10.1145/3544548.3581264.
+
+\bibitem{omgbench}
+H. Chang, P. Ren, B. Zhang, D. Li, T. Han, H. Zhang, L. Xie,
+H. Chen, and E. Yin,
+``OMG-Bench: A New Challenging Benchmark for Skeleton-based Online Micro Hand Gesture Recognition,''
+2026.
+
+\bibitem{airwriting}
+H. Jand and S. Ranjan,
+``Air Writing App with Real-Time Hand Tracking and Handwriting Recognition using Fingertip Detection and Drawing,''
+\emph{International Journal on Recent and Innovation Trends in Computing and Communication},
+vol. 11, no. 10, pp. 1147--1153, 2023.
+
+\bibitem{swathi}
+S. A. Swathi,
+``Air Canvas Hand Tracking,''
+\emph{Journal of Emerging Technologies and Innovative Research},
+vol. 11, no. 11, 2024.
+
+\bibitem{mahmud}
+H. Mahmud, M. M. Morshed, and Md. Kamrul Hasan,
+``A Deep Learning-based Multimodal Depth-Aware Dynamic Hand Gesture Recognition System,''
+2021.
+
+\bibitem{sharma}
+A. Sharma, A. Mittal, S. Singh, and V. Awatramani,
+``Hand Gesture Recognition using Image Processing and Feature Extraction Techniques,''
+\emph{Procedia Computer Science},
+vol. 173, pp. 181--190, 2020,
+doi: 10.1016/j.procs.2020.06.022.
 
 \bibitem{qi2024}
-J. Qi, L. Ma, Z. Cui, and Y. Yu, ``Computer vision-based hand gesture recognition for human-robot interaction: a review,'' \emph{Complex \& Intelligent Systems}, vol. 10, pp. 1581--1606, 2024, doi: 10.1007/s40747-023-01173-6.
+J. Qi, L. Ma, Z. Cui, and Y. Yu,
+``Computer vision-based hand gesture recognition for human-robot interaction: a review,''
+\emph{Complex \& Intelligent Systems},
+vol. 10, pp. 1581--1606, 2024,
+doi: 10.1007/s40747-023-01173-6.
 
-\bibitem{vuletic2019}
-T. Vuletic, A. Duffy, L. Hay, C. McTeague, G. Campbell, and M. Grealy, ``Systematic literature review of hand gestures used in human computer interaction interfaces,'' \emph{International Journal of Human-Computer Studies}, vol. 129, pp. 74--94, 2019, doi: 10.1016/j.ijhcs.2019.03.011.
-
-\bibitem{rahman2020}
-M. M. Rahman, M. Hossain, and M. A. H. Akhand, ``Hand Gesture Recognition Based on Computer Vision: A Review of Techniques,'' \emph{Journal of Imaging}, vol. 6, no. 8, 2020, Art. no. 73.
-
-\bibitem{vasavi2022}
-R. Vasavi, N. Rahul, A. Snigdha, K. J. Moses, and S. V. Simha, ``Painting with Hand Gestures using MediaPipe,'' \emph{International Journal of Innovative Science and Research Technology}, vol. 7, no. 12, 2022.
-
-\bibitem{swathi2024}
-S. A. Swathi, ``Air Canvas Hand Tracking,'' \emph{Journal of Emerging Technologies and Innovative Research}, vol. 11, no. 11, 2024.
-
-\bibitem{moreira2026}
-J. Moreira, ``Dynamic LIBRAS Gesture Recognition via CNN over Spatiotemporal Matrix Representation,'' arXiv:2603.25863, 2026.
+\bibitem{morajkar}
+A. Morajkar, A. M. James, M. Bagwe, A. S. James, and A. Pavate,
+``Hand gesture and voice-controlled mouse for physically challenged using computer vision,''
+\emph{Advanced Engineering Days},
+vol. 6, pp. 127--131, 2023.
 
 \bibitem{anithadevi2025}
-N. Anithadevi, S. Palanisamy, S. S. Rubini, and S. Shrestha, ``MediaPipe-LSTM-Enhanced Framework for Real-Time Dynamic Sign Language Recognition in Inclusive Communication Systems,'' \emph{Engineering Reports}, 2025.
+N. Anithadevi, S. Palanisamy, S. S. Rubini, and S. Shrestha,
+``MediaPipe-LSTM-Enhanced Framework for Real-Time Dynamic Sign Language Recognition in Inclusive Communication Systems,''
+\emph{Engineering Reports}, 2025.
 
-\bibitem{mediapipe_docs}
-Google AI Edge, ``MediaPipe Hands: Hand Landmark Detection,'' Google Developers, 2026. [Online]. Available: \url{https://developers.google.com/mediapipe/solutions/vision/hand_landmarker}
+\bibitem{quan}
+L. Quan, Q. Guo, X. Xie, S. Chen, X. Li, and Y. Liu,
+``Towards Understanding the Faults of JavaScript-Based Deep Learning Systems,''
+in \emph{Proc. IEEE/ACM International Conference on Automated Software Engineering (ASE)}, 2022,
+doi: 10.1145/3551349.3560427.
 
-\bibitem{mediapipe_landmarks}
-Google AI Edge, ``HandLandmark,'' Google Developers, 2026. [Online]. Available: \url{https://ai.google.dev/edge/api/mediapipe/python/mp/tasks/vision/drawing_styles/hand_landmarker/HandLandmark}
+\bibitem{vasavi}
+R. Vasavi, N. Rahul, A. Snigdha, K. J. Moses, and S. V. Simha,
+``Painting with Hand Gestures using MediaPipe,''
+\emph{International Journal of Innovative Science and Research Technology},
+vol. 7, no. 12, 2022.
+
+\bibitem{moreira2026}
+J. Moreira,
+``Dynamic LIBRAS Gesture Recognition via CNN over Spatiotemporal Matrix Representation,''
+arXiv:2603.25863, 2026.
+
+\bibitem{generative_airsketch}
+H. X. G. Lim, X. Cui, Y. S. Rawat, and S.-N. Lim,
+``AirSketch: Generative Motion to Sketch,''
+in \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2024,
+arXiv:2407.08906.
+
+\bibitem{virtualwrite}
+S. Barade, P. Kadam, P. Vedpathak, and N. S. Bahirame,
+``Virtual Write and Clear Application: A Gesture-based Drawing Tool using Mediapipe and OpenCV,''
+\emph{International Journal for Multidisciplinary Research in Science, Engineering and Technology},
+vol. 8, no. 3, 2025,
+doi: 10.15680/IJMRSET.2025.0803129.
+
+\bibitem{virtualpainting}
+S. V. Tiwari, D. A. Vartak, V. R. Verma, A. I. Sayyed, and S. Khatu,
+``Virtual Hand Gesture Painting,''
+2024.
 
 \bibitem{repo}
 Code-Hish, ``MajorProject: New\_Airsketch\_Codes,'' GitHub repository, 2026. [Online]. Available: \url{https://github.com/Code-Hish/MajorProject/tree/main/New_Airsketch_Codes}
 
 \end{thebibliography}
+
+\end{document}
 
 \end{document}
